@@ -1,0 +1,18 @@
+- title "Folder"
+
+%p
+  %strong Name:
+  = @folder.name
+%p
+  %strong Parent:
+  = @folder.parent_id
+%p
+  %strong User:
+  = @folder.user_id
+
+%p
+  = link_to "Edit", edit_folder_path(@folder)
+  |
+  = link_to "Destroy", @folder, :confirm => 'Are you sure?', :method => :delete
+  |
+  = link_to "View All", folders_path

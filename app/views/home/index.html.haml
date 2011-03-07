@@ -1,0 +1,54 @@
+- unless user_signed_in?
+  %h1 Welcome to ShareBox
+  %p File sharing web application you can't ignore.
+
+- else
+  #menu
+    %ul#top_menu
+      -if @current_folder
+        %li= link_to "Upload", new_sub_file_path(@current_folder)
+        %li= link_to "New Folder", new_sub_folder_path(@current_folder)
+      - else
+        %li= link_to "Upload", new_asset_path
+        %li= link_to "New Folder", new_folder_path
+  = render :partial => "breadcrumbs"
+  .asset_list_header
+    .file_name_header File Name
+    .file_size_header Size
+    .file_last_updated_header Modified
+  .asset_list
+    - @folders.each do |folder|
+      .asset_details{:class => "asset_details #{ folder.shared? ? 'shared_folder' : 'folder' }", :id => "folder_#{folder.id}"}
+        .file_name= link_to folder.name, browse_path(folder)
+        .file_size -
+        .file_last_updated -
+        .actions
+          .share
+            =link_to "Share", "#", :folder_id => folder.id, :folder_name => folder.name
+          .rename
+            =link_to "Rename", rename_folder_path(folder)
+          .delete
+            =link_to "Delete", folder, :confirm => 'Are you sure you want to delete the folder and all of its contents?', :method => :delete
+
+    - @assets.each do |asset|
+      .asset_details.file
+        .file_name= link_to asset.file_name, download_url(asset)
+        .file_size= number_to_human_size(asset.file_size, :percision => 2)
+        .file_last_updated= asset.uploaded_file_updated_at
+        .actions
+          .download
+            =link_to "Download", download_url(asset)
+          .delete
+            =link_to "Delete", asset, :confirm => 'Are you sure?', :method => :delete 
+#invitation_form{:title => "Invite others to share", :style => "display:none"}
+  - form_tag '/home/share' do
+    %label{:for => 'email_addresses'}Enter reciepient email addresses here
+    %br/
+    = text_field_tag 'email_addresses', "", :class => 'text ui-widget-content ui-corner-all'
+    %br/
+    %br/
+    %label{:for => 'message'}Optional message
+    %br/
+    = text_area_tag 'message',"", :class => 'text ui-widget-content ui-corner-all'
+    = hidden_field_tag "folder_id"
+

@@ -1,0 +1,17 @@
+- title "Folders"
+
+%table
+  %tr
+    %th Name
+    %th Parent
+    %th User
+  - for folder in @folders
+    %tr
+      %td= folder.name
+      %td= folder.parent_id
+      %td= folder.user_id
+      %td= link_to 'Show', folder
+      %td= link_to 'Edit', edit_folder_path(folder)
+      %td= link_to 'Destroy', folder, :confirm => 'Are you sure?', :method => :delete
+
+%p= link_to "New Folder", new_folder_path

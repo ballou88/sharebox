@@ -1,0 +1,9 @@
+//closing the dialog box
+$("#invitation_form").dialog("close");
+
+$("#flash_notice").remove();
+
+$("#container").prepend("<div id='flash_notice'>Successfully shared the folder</div>");
+
+$("#folder_#{params[:folder_id]}").removeClass("folder");
+$("#folder_#{params[:folder_id]}").addClass("shared_folder");

@@ -1,0 +1,8 @@
+.breadcrumbs
+  -if @current_folder #checking if we are under any folder
+    = link_to "ShareBox", root_url
+    - @current_folder.ancestors.reverse.each do |folder|
+      >>
+      = link_to folder.name, browse_path(folder)
+  -else #if we are not under any folder
+    ShareBox
