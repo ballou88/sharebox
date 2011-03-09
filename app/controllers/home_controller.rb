@@ -2,6 +2,9 @@ class HomeController < ApplicationController
 
   def index
     if user_signed_in?
+      #show folder shared by others
+      @being_shared_folders = current_user.shared_folders_by_others
+
       #load current_user's folders
       @folders = current_user.folders.roots
 
@@ -12,9 +15,19 @@ class HomeController < ApplicationController
 
   def browse
     #get the folders owned/created by the current_user
-    @current_folder = current_user.folders.find(params[:folder_id])
+    @current_folder = current_user.folders.find_by_id(params[:folder_id])
+    @is_this_folder_being_shared = false if @current_folder
+
+    if @current_folder.nil?
+      folder = Folder.find_by_id(params[:folder_id])
+
+      @current_folder ||= folder if current_user.has_shared_access?(folder)
+      @is_this_folder_being_shared = true if @current_folder
+    end
 
     if @current_folder
+
+      @being_shared_folders = []
 
       #getting the folders which are inside this @current_folder
       @folders = @current_folder.children
@@ -42,6 +55,7 @@ class HomeController < ApplicationController
 
       @shared_folder.message = params[:message]
       @shared_folder.save
+      UserMailer.invitation_to_share(@shared_folder).deliver
     end
 
     respond_to do |format|

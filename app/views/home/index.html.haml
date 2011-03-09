@@ -4,19 +4,28 @@
 
 - else
   #menu
-    %ul#top_menu
-      -if @current_folder
-        %li= link_to "Upload", new_sub_file_path(@current_folder)
-        %li= link_to "New Folder", new_sub_folder_path(@current_folder)
-      - else
-        %li= link_to "Upload", new_asset_path
-        %li= link_to "New Folder", new_folder_path
+    -unless @is_this_folder_being_shared
+      %ul#top_menu
+        -if @current_folder
+          %li= link_to "Upload", new_sub_file_path(@current_folder)
+          %li= link_to "New Folder", new_sub_folder_path(@current_folder)
+        - else
+          %li= link_to "Upload", new_asset_path
+          %li= link_to "New Folder", new_folder_path
+    - else
+      %h3= "This folder is being shared to you by #{@current_folder.user.name}"
   = render :partial => "breadcrumbs"
   .asset_list_header
     .file_name_header File Name
     .file_size_header Size
     .file_last_updated_header Modified
   .asset_list
+    - @being_shared_folders.each do |folder|
+      %div{:class => "asset_details #{folder.shared? ? 'shared_folder' : 'folder'}", :id => "folder_#{folder.id}"}
+        .file_name= link_to folder.name, browse_path(folder)
+        .file_size -
+        .file_last_updated -
+        .actions
     - @folders.each do |folder|
       .asset_details{:class => "asset_details #{ folder.shared? ? 'shared_folder' : 'folder' }", :id => "folder_#{folder.id}"}
         .file_name= link_to folder.name, browse_path(folder)
@@ -24,11 +33,11 @@
         .file_last_updated -
         .actions
           .share
-            =link_to "Share", "#", :folder_id => folder.id, :folder_name => folder.name
+            =link_to "Share", "#", :folder_id => folder.id, :folder_name => folder.name unless @is_this_folder_being_shared
           .rename
-            =link_to "Rename", rename_folder_path(folder)
+            =link_to "Rename", rename_folder_path(folder) unless @is_this_folder_being_shared
           .delete
-            =link_to "Delete", folder, :confirm => 'Are you sure you want to delete the folder and all of its contents?', :method => :delete
+            =link_to "Delete", folder, :confirm => 'Are you sure you want to delete the folder and all of its contents?', :method => :delete unless @is_this_folder_being_shared
 
     - @assets.each do |asset|
       .asset_details.file
@@ -39,7 +48,7 @@
           .download
             =link_to "Download", download_url(asset)
           .delete
-            =link_to "Delete", asset, :confirm => 'Are you sure?', :method => :delete 
+            =link_to "Delete", asset, :confirm => 'Are you sure?', :method => :delete unless @is_this_folder_being_shared
 #invitation_form{:title => "Invite others to share", :style => "display:none"}
   - form_tag '/home/share' do
     %label{:for => 'email_addresses'}Enter reciepient email addresses here

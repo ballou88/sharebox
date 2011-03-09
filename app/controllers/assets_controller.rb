@@ -59,11 +59,15 @@ class AssetsController < ApplicationController
 
   def get
     asset = current_user.assets.find_by_id(params[:id])
+    
+    asset ||= Asset.find(params[:id]) if current_user.has_shared_access?(Asset.find_by_id(params[:id]).folder)
+
     if asset
-      send_file asset.uploaded_file.path, :type => asset.uploaded_file_content_type
+      data = open(URI.parse(URI.encode(asset.uploaded_file.url)))
+      send_data data, :filename => asset.uploaded_file_file_name
     else
       flash[:error] = "Don't be cheeky! Mind your own assets!"
-      redirect_to assets_path
+      redirect_to root_url
     end
   end
 end
