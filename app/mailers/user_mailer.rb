@@ -1,4 +1,5 @@
 class UserMailer < ActionMailer::Base
+  default_url_options[:host] = "sharebox.webbyapp.com"
   default :from => "sharebox@gmail.com"
 
   def invitation_to_share(shared_folder)
